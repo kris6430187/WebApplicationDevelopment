@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Car Accessories</title>
+    <link rel="stylesheet" href="/css/global.css">
+</head>
+
+<body>
+    <h1>Car Accessories</h1>
+
+    <form id="accessoryForm">
+        <label for="accessory">Select an accessory:</label>
+        <select id="accessory" name="accessory">
+            <option value="Car Cover">Car Cover</option>
+            <option value="Seat Cover">Seat Covers</option>
+            <option value="Floor Mat">Floor Mats</option>
+            <option value="Door Visor">Door Visors</option>
+        </select>
+        <br>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" min="1" value="1">
+        <br>
+        <button type="button" onclick="addToProductList()">Add</button>
+    </form>
+
+    <h2>Product List</h2>
+
+    <table id="productList">
+        <tr>
+            <th>Accessory</th>
+            <th>Amount</th>
+            <th>Price</th>
+            <th>VAT (7%)</th>
+        </tr>
+    </table>
+
+    <p class="total">Total Price: $<span id="totalPrice">0.00</span></p>
+    <p class="total">Total VAT: $<span id="totalVAT">0.00</span></p>
+
+    <script>
+        const VAT_RATE = 0.07;
+        let totalPrice = 0;
+        let totalVAT = 0;
+
+        function addToProductList() {
+            const accessory = document.getElementById("accessory").value;
+            const amount = parseInt(document.getElementById("amount").value);
+            const price = calculatePrice(accessory) * amount;
+            const vat = price * VAT_RATE;
+
+            const table = document.getElementById("productList");
+            const row = table.insertRow(-1);
+            const accessoryCell = row.insertCell(0);
+            const amountCell = row.insertCell(1);
+            const priceCell = row.insertCell(2);
+            const vatCell = row.insertCell(3);
+
+            accessoryCell.innerHTML = accessory;
+            amountCell.innerHTML = amount;
+            priceCell.innerHTML = "$" + price.toFixed(2);
+            vatCell.innerHTML = "$" + vat.toFixed(2);
+
+            updateTotalPrice(price, vat);
+        }
+
+        function calculatePrice(accessory) {
+            switch (accessory) {
+                case "Car Cover":
+                    return 50;
+                case "Seat Cover":
+                    return 30;
+                case "Floor Mat":
+                    return 20;
+                case "Door Visor":
+                    return 40;
+                default:
+                    return 0;
+            }
+        }
+
+        function updateTotalPrice(price, vat) {
+            totalPrice += price;
+            totalVAT += vat;
+            document.getElementById("totalPrice").innerHTML = totalPrice.toFixed(2);
+            document.getElementById("totalVAT").innerHTML = totalVAT.toFixed(2);
+        }
+    </script>
+</body>
+
+</html>
