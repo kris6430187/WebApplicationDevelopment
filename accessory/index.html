@@ -4,6 +4,7 @@
 <head>
     <title>Car Accessories</title>
     <link rel="stylesheet" href="/css/global.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -21,7 +22,7 @@
         <label for="amount">Amount:</label>
         <input type="number" id="amount" name="amount" min="1" value="1">
         <br>
-        <button type="button" onclick="addToProductList()">Add</button>
+        <button type="button" id="addButton">Add</button>
     </form>
 
     <h2>Product List</h2>
@@ -43,23 +44,25 @@
         let totalPrice = 0;
         let totalVAT = 0;
 
+        $(document).ready(function () {
+            $("#addButton").click(function () {
+                addToProductList();
+            });
+        });
+
         function addToProductList() {
-            const accessory = document.getElementById("accessory").value;
-            const amount = parseInt(document.getElementById("amount").value);
+            const accessory = $("#accessory").val();
+            const amount = parseInt($("#amount").val());
             const price = calculatePrice(accessory) * amount;
             const vat = price * VAT_RATE;
 
-            const table = document.getElementById("productList");
-            const row = table.insertRow(-1);
-            const accessoryCell = row.insertCell(0);
-            const amountCell = row.insertCell(1);
-            const priceCell = row.insertCell(2);
-            const vatCell = row.insertCell(3);
+            const row = $("<tr>");
+            row.append($("<td>").text(accessory));
+            row.append($("<td>").text(amount));
+            row.append($("<td>").text("$" + price.toFixed(2)));
+            row.append($("<td>").text("$" + vat.toFixed(2)));
 
-            accessoryCell.innerHTML = accessory;
-            amountCell.innerHTML = amount;
-            priceCell.innerHTML = "$" + price.toFixed(2);
-            vatCell.innerHTML = "$" + vat.toFixed(2);
+            $("#productList").append(row);
 
             updateTotalPrice(price, vat);
         }
@@ -82,8 +85,8 @@
         function updateTotalPrice(price, vat) {
             totalPrice += price;
             totalVAT += vat;
-            document.getElementById("totalPrice").innerHTML = totalPrice.toFixed(2);
-            document.getElementById("totalVAT").innerHTML = totalVAT.toFixed(2);
+            $("#totalPrice").text(totalPrice.toFixed(2));
+            $("#totalVAT").text(totalVAT.toFixed(2));
         }
     </script>
 </body>
