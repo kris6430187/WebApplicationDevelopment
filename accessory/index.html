@@ -1,44 +1,95 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Car Accessories</title>
     <link rel="stylesheet" href="/css/global.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
         integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <style>
+        .modal-header {
+            background-color: #007bff; /* Bootstrap primary color */
+            color: white;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
-
 <body>
-    <h1>Car Accessories</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary"> <!-- Changed to bg-primary for darker theme -->
+        <a class="navbar-brand" href="#">Car Accessories</a>
+    </nav>
 
-    <form id="accessoryForm">
-        <label for="accessory">Select an accessory:</label>
-        <select id="accessory" name="accessory">
-            <option value="Car Cover">Car Cover</option>
-            <option value="Seat Cover">Seat Covers</option>
-            <option value="Floor Mat">Floor Mats</option>
-            <option value="Door Visor">Door Visors</option>
-        </select>
-        <br>
-        <label for="amount">Amount:</label>
-        <input type="number" id="amount" name="amount" min="1" value="1">
-        <br>
-        <button type="button" id="addButton">Add</button>
-    </form>
+    <div class="container mt-5">
+        <h1>Car Accessories</h1>
 
-    <h2>Product List</h2>
+        <!-- Trigger Modal Button -->
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addProductModal"> <!-- Changed to btn-success for a vibrant color -->
+            Add Product
+        </button>
 
-    <table id="productList">
-        <tr>
-            <th>Accessory</th>
-            <th>Amount</th>
-            <th>Price</th>
-            <th>VAT (7%)</th>
-        </tr>
-    </table>
+        <!-- Add Product Modal -->
+        <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Form moved inside Modal -->
+                        <form id="accessoryForm" class="mb-3">
+                            <div class="form-group">
+                                <label for="accessoryModal">Select an accessory:</label>
+                                <select id="accessoryModal" name="accessory" class="form-control">
+                                    <option value="Car Cover">Car Cover</option>
+                                    <option value="Seat Cover">Seat Covers</option>
+                                    <option value="Floor Mat">Floor Mats</option>
+                                    <option value="Door Visor">Door Visors</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amountModal">Amount:</label>
+                                <input type="number" id="amountModal" name="amount" min="1" value="1" class="form-control">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" id="addButtonModal" class="btn btn-primary">Add to List</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <p class="total">Total Price: $<span id="totalPrice">0.00</span></p>
-    <p class="total">Total VAT: $<span id="totalVAT">0.00</span></p>
+        <h2>Product List</h2>
+
+        <table id="productList" class="table table-striped"> <!-- Added table-striped for striped rows -->
+            <thead class="thead-dark"> <!-- Changed to thead-dark for better contrast -->
+                <tr>
+                    <th>Accessory</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                    <th>VAT (7%)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <p class="total">Total Price: $<span id="totalPrice">0.00</span></p>
+        <p class="total">Total VAT: $<span id="totalVAT">0.00</span></p>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
         const VAT_RATE = 0.07;
@@ -46,14 +97,23 @@
         let totalVAT = 0;
 
         $(document).ready(function () {
-            $("#addButton").click(function () {
-                addToProductList();
+            $("#addButtonModal").click(function () {
+                const accessory = $("#accessoryModal").val();
+                const amount = parseInt($("#amountModal").val());
+                addToProductList(accessory, amount);
+                $('#addProductModal').modal('hide'); // Hide modal after adding product
+            });
+
+            $("#productList").on("click", ".deleteButton", function () {
+                const row = $(this).closest("tr");
+                const price = parseFloat(row.find("td:nth-child(3)").text().substring(1));
+                const vat = parseFloat(row.find("td:nth-child(4)").text().substring(1));
+                row.remove();
+                updateTotalPrice(-price, -vat);
             });
         });
 
-        function addToProductList() {
-            const accessory = $("#accessory").val();
-            const amount = parseInt($("#amount").val());
+        function addToProductList(accessory, amount) {
             const price = calculatePrice(accessory) * amount;
             const vat = price * VAT_RATE;
 
@@ -62,8 +122,9 @@
             row.append($("<td>").text(amount));
             row.append($("<td>").text("$" + price.toFixed(2)));
             row.append($("<td>").text("$" + vat.toFixed(2)));
+            row.append($("<td>").html('<button class="btn btn-danger deleteButton">Delete</button>'));
 
-            $("#productList").append(row);
+            $("#productList tbody").append(row);
 
             updateTotalPrice(price, vat);
         }
@@ -91,5 +152,4 @@
         }
     </script>
 </body>
-
 </html>
